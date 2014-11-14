@@ -1,4 +1,3 @@
-require 'uuidtools'
 
 def load_current_resource
   @current_resource = Chef::Resource::LibvirtNetwork.new(new_resource.name)
@@ -8,6 +7,7 @@ def load_current_resource
 end
 
 action :define do
+  require 'uuidtools'
   unless network_defined?
     network_xml = Tempfile.new(new_resource.name)
     t = template network_xml.path do
