@@ -6,7 +6,7 @@
   <uuid><%= @uuid %></uuid>
   <os>
     <type arch='<%= @arch %>'>hvm</type>
-    <boot dev='hd'/>
+    <boot dev='<%= @boot %>'/>
   </os>
   <features>
     <acpi/><apic/><pae/>
