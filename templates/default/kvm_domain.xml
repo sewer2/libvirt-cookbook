@@ -5,7 +5,7 @@
   <vcpu><%= @vcpu %></vcpu>
   <uuid><%= @uuid %></uuid>
   <os>
-    <type arch='<%= @arch %>'>hvm</type>
+    <type arch='<%= @arch %>' machine='<%= @machine %>'>hvm</type>
     <boot dev='<%= @boot %>'/>
   </os>
   <features>

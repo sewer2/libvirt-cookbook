@@ -22,6 +22,7 @@ action :define do
         :memory => memory_in_bytes,
         :vcpu   => new_resource.vcpu,
         :boot   => new_resource.boot,
+        :machine => new_resource.machine,
         :arch   => libvirt_arch,
         :uuid   => ::UUIDTools::UUID.random_create
       )
