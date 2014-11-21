@@ -10,7 +10,6 @@ end
 action :define do
   require 'uuidtools'
   unless domain_defined?
-    memory_in_bytes = to_bytes(new_resource.memory)
     libvirt_arch    = to_arch(new_resource.arch)
 
     domain_xml = Tempfile.new(new_resource.name)
@@ -19,7 +18,7 @@ action :define do
       source   "kvm_domain.xml"
       variables(
         :name   => new_resource.name,
-        :memory => memory_in_bytes,
+        :memory => new_resource.memory,
         :vcpu   => new_resource.vcpu,
         :boot   => new_resource.boot,
         :machine => new_resource.machine,

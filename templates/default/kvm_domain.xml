@@ -1,7 +1,7 @@
 <domain type='kvm'>
   <name><%= @name %></name>
-  <currentMemory><%= @memory %></currentMemory>
-  <memory><%= @memory %></memory>
+  <currentMemory unit='MiB'><%= @memory %></currentMemory>
+  <memory unit='MiB'><%= @memory %></memory>
   <vcpu><%= @vcpu %></vcpu>
   <uuid><%= @uuid %></uuid>
   <os>
