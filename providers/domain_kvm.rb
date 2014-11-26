@@ -10,20 +10,13 @@ end
 action :define do
   require 'uuidtools'
   unless domain_defined?
-    libvirt_arch    = to_arch(new_resource.arch)
-
     domain_xml = Tempfile.new(new_resource.name)
     t = template domain_xml.path do
       cookbook "libvirt"
-      source   "kvm_domain.xml"
+      source   "kvm_domain.erb"
       variables(
-        :name   => new_resource.name,
-        :memory => new_resource.memory,
-        :vcpu   => new_resource.vcpu,
-        :boot   => new_resource.boot,
-        :machine => new_resource.machine,
-        :arch   => libvirt_arch,
-        :uuid   => ::UUIDTools::UUID.random_create
+        :name => new_resource.name
+        {:conf_xml => create_xml(node['libvirt']['kvm'][new_resource.name])}
       )
       action :nothing
     end
@@ -52,24 +45,6 @@ action :create do
 end
 
 private
-
-def to_arch(arch)
-  case arch
-  when /64/
-    "x86_64"
-  end
-end
-
-def to_bytes(value)
-  case value
-  when /M$/
-    value.to_i * 1024
-  when /G$/
-    value.to_i * 1024**2
-  else
-    value.to_i
-  end
-end
 
 def load_domain
   @libvirt.lookup_domain_by_name(new_resource.name)
