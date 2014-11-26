@@ -2,7 +2,7 @@
 
 def load_current_resource
   @current_resource = Chef::Resource::LibvirtDomain.new(new_resource.name)
-  @libvirt = ::Libvirt.open(new_resource.uri)
+  @libvirt = ::Libvirt.open('qemu:///system')
   @domain  = load_domain rescue nil
   @current_resource
 end
@@ -14,9 +14,10 @@ action :define do
     t = template domain_xml.path do
       cookbook "libvirt"
       source   "kvm_domain.erb"
+      conf=new_resource.conf_mash
       variables(
         :name => new_resource.name
-        {:conf_xml => create_xml(node['libvirt']['kvm'][new_resource.name])}
+        :conf_xml => create_xml(conf)
       )
       action :nothing
     end
