@@ -16,7 +16,7 @@ action :define do
       source   "kvm_domain.erb"
       conf=new_resource.conf_mash
       variables(
-        :name => new_resource.name
+        :name => new_resource.name,
         :conf_xml => create_xml(conf)
       )
       action :nothing
