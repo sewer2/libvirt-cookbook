@@ -87,6 +87,6 @@ end
 
 def create_xml(array)
 xm=MyXmlMarkup.new
-to_xml(array,xm)
+to_xml(array,xm,2,2)
 return xm.to_s
 end

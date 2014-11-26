@@ -11,13 +11,13 @@ action :define do
   require 'uuidtools'
   unless domain_defined?
     domain_xml = Tempfile.new(new_resource.name)
+    config = create_xml(new_resource.conf_mash)
     t = template domain_xml.path do
       cookbook "libvirt"
       source   "kvm_domain.erb"
-      conf=new_resource.conf_mash
       variables(
         :name => new_resource.name,
-        :conf_xml => create_xml(conf)
+        :conf_xml => config
       )
       action :nothing
     end
