@@ -4,7 +4,7 @@
   end.run_action(:install)
 end
 
-%w(ruby-libvirt builder).each do |name|
+%w(ruby-libvirt builder activesupport).each do |name|
   chef_gem name do
     action :install
   end

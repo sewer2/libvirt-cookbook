@@ -44,17 +44,21 @@ def to_xml(data, xm, indent=2, level=0)
   else
     data.each do |t,params|
       attr={}
-      child={}
+      child=[]
       value=''
       if params.is_a?(String) 
         value=params 
+      elsif params.is_a?(Array)
+        params.each do |a|
+          to_xml({t=>a},xm, indent,level)
+        end
+        next
       else
         params.each do |k, v|
           attr[k[1,k.size]] = v if k[0]=='-'
           value = v if k == "#text"
-          child[k]=v if v.is_a?(Hash)
+          child << {k=>v} if v.is_a?(Hash)
           if v.is_a?(Array)
-            child=[]
             v.each do |kid|
               child << {k=>kid}
             end
@@ -88,5 +92,7 @@ end
 def create_xml(array)
 xm=MyXmlMarkup.new
 to_xml(array,xm,2,2)
+x=xm.to_s.chomp("<to_s/>")
+return x if x
 return xm.to_s
 end

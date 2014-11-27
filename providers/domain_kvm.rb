@@ -8,7 +8,6 @@ def load_current_resource
 end
 
 action :define do
-  require 'uuidtools'
   unless domain_defined?
     domain_xml = Tempfile.new(new_resource.name)
     config = create_xml(new_resource.conf_mash)
@@ -42,10 +41,29 @@ action :create do
   unless domain_active?
     @domain.create
     new_resource.updated_by_last_action(true)
+  else
+    update_domain_devices
   end
 end
 
 private
+
+def update_domain_devices
+  device_xml = Tempfile.new(new_resource.name+"_devices")
+  config = new_resource.conf_mash
+  config = config.select{ |k, v| k == "devices" }
+  t = template device_xml.path do
+    cookbook "libvirt"
+    source   "kvm_devices.erb"
+    variables(
+      :conf_xml => create_xml(config)
+    )
+    action :nothing
+  end
+  t.run_action(:create)
+  @domain.update_device(::File.read(device_xml.path))
+  new_resource.updated_by_last_action(true)
+end
 
 def load_domain
   @libvirt.lookup_domain_by_name(new_resource.name)
