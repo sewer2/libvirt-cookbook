@@ -42,27 +42,36 @@ action :create do
     @domain.create
     new_resource.updated_by_last_action(true)
   else
-    update_domain_devices
+    config = new_resource.conf_mash
+    config['devices'].each do |dev, opt|
+      if opt.is_a?(Array)
+        opt.each do |o|
+          update_domain_devices({dev=>o})
+        end
+      else
+        update_domain_devices({dev=>opt})
+      end
+    end
+    new_resource.updated_by_last_action(true)
   end
 end
 
 private
 
-def update_domain_devices
-  device_xml = Tempfile.new(new_resource.name+"_devices")
-  config = new_resource.conf_mash
-  config = config.select{ |k, v| k == "devices" }
+def update_domain_devices(device)
+  device_xml = Tempfile.new(new_resource.name+"_device"+device.keys[0])
   t = template device_xml.path do
     cookbook "libvirt"
     source   "kvm_devices.erb"
     variables(
-      :conf_xml => create_xml(config)
+      :conf_xml => create_xml(device)
     )
     action :nothing
   end
   t.run_action(:create)
   @domain.update_device(::File.read(device_xml.path))
-  new_resource.updated_by_last_action(true)
+rescue
+  Chef::Log.info("live update of device #{device.keys[0]} is not supported")
 end
 
 def load_domain
