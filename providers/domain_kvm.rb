@@ -9,23 +9,14 @@ end
 
 action :define do
   unless domain_defined?
-    domain_xml = Tempfile.new(new_resource.name)
-    config = create_xml(new_resource.conf_mash)
-    t = template domain_xml.path do
-      cookbook "libvirt"
-      source   "kvm_domain.erb"
-      variables(
-        :name => new_resource.name,
-        :conf_xml => config
-      )
-      action :nothing
-    end
-    t.run_action(:create)
-
-    @libvirt.define_domain_xml(::File.read(domain_xml.path))
-    @domain = load_domain
-    new_resource.updated_by_last_action(true)
+    domain_uuid = ''
+    define_domain(domain_uuid)
+  else
+    @domain.undefine
+    domain_uuid = @domain.uuid
+    define_domain(domain_uuid)
   end
+  new_resource.updated_by_last_action(true)
 end
 
 action :autostart do
@@ -41,37 +32,28 @@ action :create do
   unless domain_active?
     @domain.create
     new_resource.updated_by_last_action(true)
-  else
-    config = new_resource.conf_mash
-    config['devices'].each do |dev, opt|
-      if opt.is_a?(Array)
-        opt.each do |o|
-          update_domain_devices({dev=>o})
-        end
-      else
-        update_domain_devices({dev=>opt})
-      end
-    end
-    new_resource.updated_by_last_action(true)
   end
 end
 
 private
 
-def update_domain_devices(device)
-  device_xml = Tempfile.new(new_resource.name+"_device"+device.keys[0])
-  t = template device_xml.path do
+def define_domain(domain_uuid)
+  uuid = domain_uuid
+  domain_xml = Tempfile.new(new_resource.name)
+  config = create_xml(new_resource.conf_mash)
+  t = template domain_xml.path do
     cookbook "libvirt"
-    source   "kvm_devices.erb"
+    source   "kvm_domain.erb"
     variables(
-      :conf_xml => create_xml(device)
+      :name => new_resource.name,
+      :uuid => uuid,
+      :conf_xml => config
     )
     action :nothing
   end
   t.run_action(:create)
-  @domain.update_device(::File.read(device_xml.path))
-rescue
-  Chef::Log.info("live update of device #{device.keys[0]} is not supported")
+  @libvirt.define_domain_xml(::File.read(domain_xml.path))
+  @domain = load_domain
 end
 
 def load_domain
