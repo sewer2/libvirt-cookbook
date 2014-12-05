@@ -19,18 +19,11 @@ action :define do
   new_resource.updated_by_last_action(true)
 end
 
-action :autostart do
-  require_defined_domain
-  unless domain_autostart?
-    @domain.autostart = true
-    new_resource.updated_by_last_action(true)
-  end
-end
-
 action :create do
   require_defined_domain
   unless domain_active?
     @domain.create
+    @domain.autostart = new_resource.autostart
     new_resource.updated_by_last_action(true)
   end
 end
@@ -54,6 +47,13 @@ def define_domain(domain_uuid)
   t.run_action(:create)
   @libvirt.define_domain_xml(::File.read(domain_xml.path))
   @domain = load_domain
+  reautostart_domain
+end
+
+def reautostart_domain
+  auto = new_resource.autostart
+  @domain.autostart = false
+  @domain.autostart = true if auto
 end
 
 def load_domain
@@ -67,10 +67,6 @@ end
 
 def domain_defined?
   @domain
-end
-
-def domain_autostart?
-  @domain.autostart?
 end
 
 def domain_active?

@@ -6,3 +6,4 @@ def initialize(*args)
 end
 
 attribute :conf_mash, :kind_of => Hash, :required => true
+attribute :autostart, :kind_of => [TrueClass, FalseClass], :default => false
