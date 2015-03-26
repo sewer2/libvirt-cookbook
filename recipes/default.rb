@@ -1,4 +1,4 @@
-%w(libvirt-bin libvirt-dev).each do |name|
+%w(libvirt-bin libvirt-dev ruby-dev gcc make).each do |name|
   package name do
     action :nothing
   end.run_action(:install)
