@@ -1,3 +1,7 @@
+run_context = Chef::RunContext.new(Chef::Node.new, {}, Chef::EventDispatch::Dispatcher.new)
+chef_gem = Chef::Resource::ChefGem.new("builder", run_context)
+chef_gem.run_action(:install)
+
 require 'builder/xmlmarkup'
 
 class MyXmlMarkup < Builder::XmlMarkup
@@ -10,7 +14,7 @@ class MyXmlMarkup < Builder::XmlMarkup
       attrs.each do |k, v|
         @target << %{ #{k}=#{@quote}#{_attr_value(v)}#{@quote}} unless order.member?(k) # " WART
       end
-    end
+  end
   def insert_text(text)
     @target << text
   end
@@ -29,7 +33,7 @@ def indent_tag(xml, indent, level)
   return if indent == 0 || level == 0
   xml.insert_text(" " * (level * indent))
 end
- 
+
 def newline_tag(xml,indent)
     return if indent == 0
      xml.insert_text("\n")
@@ -46,8 +50,8 @@ def to_xml(data, xm, indent=2, level=0)
       attr={}
       child=[]
       value=''
-      if params.is_a?(String) 
-        value=params 
+      if params.is_a?(String)
+        value=params
       elsif params.is_a?(Array)
         params.each do |a|
           to_xml({t=>a},xm, indent,level)
@@ -86,7 +90,7 @@ def to_xml(data, xm, indent=2, level=0)
       end
       newline_tag(xm, indent)
     end
-  end    
+  end
 end
 
 def create_xml(array)
